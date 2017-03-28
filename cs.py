@@ -14,7 +14,7 @@ SERVERADDRESS = (socket.gethostname(),6000)
  		while True:
  			client, address = self.__s.accept()
  			try:
- 				print (client,address)
+ 				print(client,address)
  				client.close()
  			except OSError:
  				print("erreur lors de la requète") 
