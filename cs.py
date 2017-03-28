@@ -21,7 +21,16 @@ class ChatServer:
  				print(client,address)
  				client.close()
  			except OSError:
- 				print("erreur lors de la requète") 
+ 				print("erreur lors de la requète")
+
+ 	def receive(self,client):
+ 		chunks = []
+ 		finished = False
+ 		while not finished:
+ 			data = client.recv(1024)
+ 			chunks.append(data)
+ 			finished = data == b''
+ 		return(b''.join(chunks).decode())  
 
 class ChatClient:
 	def __init__(self,command = '' ):
@@ -40,7 +49,7 @@ class ChatClient:
 
 		totalsent = 0
 		while totalsent < len(msg):
-			sent = s.send(msg[totalsent:])
+			sent = self.__s.send(msg[totalsent:])
 			totalsent += sent
 
 if __name__ == '__main__':
