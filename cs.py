@@ -1,9 +1,10 @@
- import pickle
- import socket 
- import struct
- import sys
+import pickle
+import socket 
+import struct
+import sys
 
 SERVERADDRESS = (socket.gethostname(),6000)
+
 class ChatServer:
  	def __init__(self):
  		self.__s = socket.socket()
@@ -12,7 +13,9 @@ class ChatServer:
  	def run(self):
  		self.__s.listen()
  		while True:
+ 			print("hellow")
  			client, address = self.__s.accept()
+
  			try:
  				print(client,address)
  				client.close()
@@ -30,3 +33,5 @@ class ChatClient:
 			self.__s.close()
 		except OSError:
 			print("Problème lors de la connection au server")
+
+ChatServer().run()
