@@ -4,7 +4,7 @@
  import sys
 
 SERVERADDRESS = (socket.gethostname(),6000)
- class ChatServer:
+class ChatServer:
  	def __init__(self):
  		self.__s = socket.socket()
  		self.__s.bind(SERVERADDRESS)
@@ -18,3 +18,9 @@ SERVERADDRESS = (socket.gethostname(),6000)
  				client.close()
  			except OSError:
  				print("erreur lors de la requète") 
+
+class ChatClient:
+	def __init__(self,command):
+		self.__data = [int(x) for x in command]
+		self.__s = socket.socket()
+	
