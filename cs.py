@@ -82,8 +82,8 @@ class ChatClient:
                         pass
                 except OSError as e:
                         print("Problème lors de la connection au server",e)
-                except Exception as e:
-                        print('err: ',e)
+                except json.decoder.JSONDecodeError:
+                        pass
                 finally:
                         self.__s.close()
                         
@@ -98,9 +98,12 @@ class ChatClient:
                         print("{}. personne".format(i))
                 line = sys.stdin.readline().rstrip() + ' '
                 try:
-                        self.join(connected[(int(line) - 1)])
-                except Exception as e:
-                        print("choix non valide ", e)
+                        if int(line) == 2:
+                                return  
+                        else:
+                                self.join(connected[(int(line) - 1)])
+                except:
+                        print("choix non valide ")
 
                  
                         
