@@ -7,7 +7,7 @@ import json
 import threading
 
 SERVERADDRESS = (socket.gethostname(),6005)
- 
+address = None
 class ChatServer:
         def __init__(self):
                  self.__s = socket.socket()
@@ -82,14 +82,27 @@ class ChatClient:
                         pass
                 except OSError as e:
                         print("Problème lors de la connection au server",e)
-                except:
-                        pass
+                except Exception as e:
+                        print('err: ',e)
                 finally:
                         self.__s.close()
                         
         def connectedRecv(self, data):
+                i = 1
+                connected = []
                 for ip in data:
-                        print("[{}]    {}\n".format(data[ip]["pseudo"],ip))
+                        connected.append({"ip":ip,"pseudo":data[ip]["pseudo"],"port": int(data[ip]["port"])})
+                        print("Avec qui voulez vous parler?")
+                        print("\n{}. [{}]    {}".format(i,data[ip]["pseudo"],ip))
+                        i+=1
+                        print("{}. personne".format(i))
+                line = sys.stdin.readline().rstrip() + ' '
+                try:
+                        self.join(connected[(int(line) - 1)])
+                except Exception as e:
+                        print("choix non valide ", e)
+
+                 
                         
         def send(self, message):
                 msg = message.encode()
@@ -97,14 +110,26 @@ class ChatClient:
                 while totalsent  < len(msg):
                         sent = self.__s.send(msg[totalsent:])
                         totalsent += sent
+        def join(self, param):
+                try:
+                        Chat.pseudo = param['pseudo']
+                        Chat.addr = (socket.gethostbyaddr(param['ip'])[0], param['port'])
+                        print('Connecté à {}'.format(param['pseudo']))
+
+                except OSError:
+                        print("Erreur lors de l'envoi du message.")
+
 class Chat:
-        def __init__(self, host=socket.gethostname(), port=5000):
+        addr = None
+        pseudo = ''
+        def __init__(self, host=socket.gethostname(), port=5001):
                 s = socket.socket(type=socket.SOCK_DGRAM)
                 s.settimeout(0.5)
-                s.bind(("0.0.0.0", 5001))
+                s.bind(("0.0.0.0", port))
                 self.__s = s
                 print('Écoute sur {}:{}'.format(host, port))
                 self.__port = port
+                self.__running = True
                 
 
         def run(self):
@@ -113,39 +138,40 @@ class Chat:
                 '/quit': self._quit,
                 '/connect': ChatClient(['connect','True', str(self.__port)]).run,
                 '/disconnect': ChatClient(['connect','False']).run,
-                '/connected': ChatClient(['connected']).run
+                '/connected': ChatClient(['connected']).run,
+                '/editPseudo': None
             }
-                self.__running = True
-                self.__address = None
+                
                 threading.Thread(target=self._receive).start()
                 while self.__running:
                         line = sys.stdin.readline().rstrip() + ' '
-                        # Extract the command and the param
-                        command = line[:line.index(' ')]
-                        param = line[line.index(' ')+1:].rstrip()
-                        # Call the command handler
-                        if command in handlers:
-
-                               
-                                
-                                try:
-                                        # /!\ code bourriner. A réparer 
-                                        if command == '/connected': ChatClient(['connected']).run()
-                                        elif command == '/connect': ChatClient(['connect','True', str(self.__port)]).run()
-                                        elif command == '/disconnect':  ChatClient(['connect','False']).run()
-                                        else: handlers[command]()
-                                        
-                                except Exception as e:
-                                        print (e)
-                                        print("Erreur lors de l'exécution de la commande.")
+                        if line[0] != '/' and self.addr is not None:      
+                                self._send(line)
                         else:
-                                print('Command inconnue:', command)
+                                # Extract the command and the param
+                                command = line[:line.index(' ')]
+                                param = line[line.index(' ')+1:].rstrip()
+                                # Call the command handler
+                                if command in handlers:
+                                        try:
+                                                # /!\ code bourriner. A réparer 
+                                                if command == '/connected': ChatClient(['connected']).run()
+                                                elif command == '/connect': ChatClient(['connect','True', str(self.__port)]).run()
+                                                elif command == '/disconnect':  ChatClient(['connect','False']).run()
+                                                elif command == '/editPseudo': ChatClient(['editPseudo',param]).run()
+                                                else: handlers[command]()
+                                                #handlers[command]()
+                                        
+                                        except Exception as e:
+                                                print (e)
+                                                print("Erreur lors de l'exécution de la commande.")
+                                else:
+                                        print('Command inconnue:', command)
         def _receive(self):
                 while self.__running:
                         try:
                                 data, address = self.__s.recvfrom(1024)
-                                print('[', address, ']')
-                                print(data.decode())
+                                print('['+ self.pseudo + ']    ' + data.decode())
                                 sys.stdout.flush()
                 
                         except socket.timeout:
@@ -154,11 +180,22 @@ class Chat:
                                 return
         def _exit(self):
                 self.__running = False
-                self.__address = None
+                self.addr = None
                 self.__s.close()
     
         def _quit(self):
-                self.__address = None
+                self.addr = None
+
+        def _send(self, param):
+                if self.addr is not None:
+                        try:
+                                message = param.encode()
+                                totalsent = 0
+                                while totalsent < len(message):
+                                        sent = self.__s.sendto(message[totalsent:], self.addr)
+                                        totalsent += sent
+                        except OSError:
+                                print('Erreur lors de la réception du message.')
 
 if __name__ == '__main__':
         if len(sys.argv) == 2 and sys.argv[1] == 'server':
