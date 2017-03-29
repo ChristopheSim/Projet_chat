@@ -3,6 +3,7 @@ import socket
 import struct
 import sys
 import time
+import json
 
 SERVERADDRESS = (socket.gethostname(),6005)
  
@@ -31,16 +32,6 @@ class ChatServer:
                         except OSError:
                                 print("erreur lors de la requète")
 
-       ''' def receive(self):
-                chunks = []
-                finished = False
-                while not finished:
-                        data = self.__curClient[0].recv(1)
-                        chunks.append(data)
-                        print(data)
-                        finished = data == b''
-                        print(finished)
-                return (b''.join(chunks).decode())'''
 
         def connect(self, cmd):
                 stat = cmd[0] == 'True'
@@ -55,7 +46,7 @@ class ChatServer:
         def connected(self,*args):
                 print('s')
                 print(str(self._connected))
-                self.send(str(self._connected))
+                self.send(json.dumps(self._connected))
 
         def send(self, message):
                 msg = message.encode()
@@ -78,8 +69,8 @@ class ChatClient:
                         except :
                                 print ("commande non valide")
 
-                        data = self.__s.recv(1024).decode()
-                        print( data)
+                        data = json.loads(self.__s.recv(1024).decode())
+                        self.connectedRecv(data)
                         self.__s.close()
                         
                 except socket.timeout:
@@ -87,7 +78,11 @@ class ChatClient:
                 except OSError as e:
                         print (e)
                         print("Problème lors de la connection au server")
-
+                        
+        def connectedRecv(self, data):
+                for ip in data:
+                        print("[{}]    {}\n".format(data[ip]["pseudo"],ip))
+                        
         def send(self, message):
                 msg = message.encode()
                 totalsent = 0
@@ -95,15 +90,6 @@ class ChatClient:
                         sent = self.__s.send(msg[totalsent:])
                         totalsent += sent
 
-      '''  def receive(self):
-                chunks = []
-                print('dfsf')
-                finished = False
-                while not finished:
-                        data = self.__s.recv(1024)
-                        chunks.append(data)
-                        finished = data == b''
-                return (b''.join(chunks).decode())'''
 
 if __name__ == '__main__':
         if len(sys.argv) == 2 and sys.argv[1] == 'server':
