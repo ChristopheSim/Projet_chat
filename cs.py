@@ -48,6 +48,10 @@ class ChatServer:
                 print(str(self._connected))
                 self.send(json.dumps(self._connected))
 
+        def editPseudo(self,pseudo):
+                pseudo = pseudo[0]
+                self._connected[self.__curClient[1][0]]["pseudo"] = pseudo
+
         def send(self, message):
                 msg = message.encode()
                 totalsent = 0
