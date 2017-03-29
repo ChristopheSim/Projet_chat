@@ -188,7 +188,7 @@ class Chat:
         def _exit(self):
                 self.__running = False
                 self.addr = None
-                #ChatClient(['connect','False']).run()
+                ChatClient(['connect','False']).run()
                 self.__s.close()
     
         def _quit(self):
