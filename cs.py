@@ -166,7 +166,7 @@ class Chat:
                                                 elif command == '/connect': ChatClient(['connect','True', str(self.__port)]).run()
                                                 elif command == '/disconnect':  ChatClient(['connect','False']).run()
                                                 elif command == '/editPseudo': ChatClient(['editPseudo',param]).run()
-                                                else: handlers[command]()
+                                                else: handlers[command]() if param == '' else handlers[command](param)
                                                 #handlers[command]()
                                         
                                         except Exception as e:
@@ -210,7 +210,7 @@ if __name__ == '__main__':
                 ChatServer().run()
         elif len(sys.argv) >= 3 and sys.argv[1] == 'client':
                 ChatClient(sys.argv[2:]).run()
-        elif len(sys.argv) == 3 and sys.argv[1] == 'chat':
+        elif len(sys.argv) == 3:
                 Chat(sys.argv[1], int(sys.argv[2])).run()
         else:
                 Chat().run()
