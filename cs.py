@@ -31,7 +31,7 @@ class ChatServer:
                         except OSError:
                                 print("erreur lors de la requète")
 
-        def receive(self):
+       ''' def receive(self):
                 chunks = []
                 finished = False
                 while not finished:
@@ -40,7 +40,7 @@ class ChatServer:
                         print(data)
                         finished = data == b''
                         print(finished)
-                return (b''.join(chunks).decode())
+                return (b''.join(chunks).decode())'''
 
         def connect(self, cmd):
                 stat = cmd[0] == 'True'
@@ -95,7 +95,7 @@ class ChatClient:
                         sent = self.__s.send(msg[totalsent:])
                         totalsent += sent
 
-        def receive(self):
+      '''  def receive(self):
                 chunks = []
                 print('dfsf')
                 finished = False
@@ -103,7 +103,7 @@ class ChatClient:
                         data = self.__s.recv(1024)
                         chunks.append(data)
                         finished = data == b''
-                return (b''.join(chunks).decode())
+                return (b''.join(chunks).decode())'''
 
 if __name__ == '__main__':
         if len(sys.argv) == 2 and sys.argv[1] == 'server':
