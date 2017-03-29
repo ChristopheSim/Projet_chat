@@ -96,14 +96,18 @@ class ChatClient:
                         print("\n{}. [{}]    {}".format(i,data[ip]["pseudo"],ip))
                         i+=1
                         print("{}. personne".format(i))
-                line = sys.stdin.readline().rstrip() + ' '
-                try:
-                        if int(line) == 2:
-                                return  
-                        else:
-                                self.join(connected[(int(line) - 1)])
-                except:
-                        print("choix non valide ")
+                if i >> 1:
+                        line = sys.stdin.readline().rstrip() + ' '
+                        try:
+                                if int(line) == 2:
+                                        return  
+                                else:
+                                        self.join(connected[(int(line) - 1)])
+                        except:
+                                print("choix non valide ")
+                else:
+                        print("personne n'est connecter")
+                
 
                  
                         
@@ -184,6 +188,7 @@ class Chat:
         def _exit(self):
                 self.__running = False
                 self.addr = None
+                #ChatClient(['connect','False']).run()
                 self.__s.close()
     
         def _quit(self):
