@@ -3,9 +3,7 @@
 # version: March 31, 2017
 # inspierd by: https://github.com/ECAM-Brussels/PythonAdvanced2BA/tree/master/CodeExamples/network
 
-import pickle
 import socket 
-import struct
 import sys
 import time
 import json
