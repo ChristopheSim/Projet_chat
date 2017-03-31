@@ -1,4 +1,4 @@
-# chat.py
+# cs.py
 # author: Guillaume de Moffarts, Christophe Simon
 # version: March 31, 2017
 # inspierd by: https://github.com/ECAM-Brussels/PythonAdvanced2BA/tree/master/CodeExamples/network
