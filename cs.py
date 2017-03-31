@@ -1,3 +1,8 @@
+# chat.py
+# author: Guillaume de Moffarts, Christophe Simon
+# version: March 31, 2017
+# inspierd by: https://github.com/ECAM-Brussels/PythonAdvanced2BA/tree/master/CodeExamples/network
+
 import pickle
 import socket 
 import struct
@@ -8,6 +13,7 @@ import threading
 
 SERVERADDRESS = (socket.gethostname(),6005)
 address = None
+
 class ChatServer:
         def __init__(self):
                  self.__s = socket.socket()
@@ -23,6 +29,7 @@ class ChatServer:
                                 data = self.__curClient[0].recv(1024).decode()
                                 data = data.split(',')
                                 try:
+                                        #run method in data[0] as a sting with data[1:] in parameter 
                                         getattr(self,data[0])(data[1:])
                                 except Exception as e:
                                         print(e)
@@ -46,10 +53,10 @@ class ChatServer:
                                 pass
 
         def connected(self,*args):
-                print(str(self._connected))
                 self.send(json.dumps(self._connected))
 
         def editPseudo(self,pseudo):
+                # the argument is a list of one elemet due to the way the metods are called 
                 pseudo = pseudo[0]
                 self._connected[self.__curClient[1][0]]["pseudo"] = pseudo
 
@@ -107,16 +114,14 @@ class ChatClient:
                                 print("choix non valide ")
                 else:
                         print("personne n'est connecter")
-                
-
-                 
-                        
+                                
         def send(self, message):
                 msg = message.encode()
                 totalsent = 0
                 while totalsent  < len(msg):
                         sent = self.__s.send(msg[totalsent:])
                         totalsent += sent
+
         def join(self, param):
                 try:
                         Chat.pseudo = param['pseudo']
@@ -140,13 +145,14 @@ class Chat:
                 
 
         def run(self):
+                param = []
                 handlers = {
                 '/exit': self._exit,
                 '/quit': self._quit,
                 '/connect': ChatClient(['connect','True', str(self.__port)]).run,
                 '/disconnect': ChatClient(['connect','False']).run,
                 '/connected': ChatClient(['connected']).run,
-                '/editPseudo': None
+                '/editPseudo': ChatClient(['editPseudo',param]).run
             }
                 
                 threading.Thread(target=self._receive).start()
@@ -167,7 +173,7 @@ class Chat:
                                                 elif command == '/disconnect':  ChatClient(['connect','False']).run()
                                                 elif command == '/editPseudo': ChatClient(['editPseudo',param]).run()
                                                 else: handlers[command]() if param == '' else handlers[command](param)
-                                                #handlers[command]()
+                                                #handlers[command]() if param == '' else handlers[command](param)
                                         
                                         except Exception as e:
                                                 print (e)
@@ -185,6 +191,7 @@ class Chat:
                                 pass
                         except OSError:
                                 return
+
         def _exit(self):
                 self.__running = False
                 self.addr = None
